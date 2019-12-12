@@ -11,8 +11,8 @@ from sklearn.metrics import classification_report
 ############################################
 """
 
-data_preprocessing  =   DataPreProcessing(word2vec_path="./Word2Vec/frWac_non_lem_no_postag_no_phrase_500_skip_cut200.bin")
-build_model         =   ModelBuilder(word2vec_path="./Word2Vec/frWac_non_lem_no_postag_no_phrase_500_skip_cut200.bin") 
+data_preprocessing  =   DataPreProcessing(Word_2_Vec_path="./Word2Vec/frWac_non_lem_no_postag_no_phrase_500_skip_cut200.bin")
+build_model         =   ModelBuilder(Word_2_Vec_path="./Word2Vec/frWac_non_lem_no_postag_no_phrase_500_skip_cut200.bin") 
 
 """
 ############################################

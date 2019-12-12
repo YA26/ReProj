@@ -6,16 +6,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities  
+from gensim.models import KeyedVectors
 from nltk import RegexpTokenizer
 from sklearn.model_selection import train_test_split
 import pandas as pd
-import word2vec
+
 
 class DataPreProcessing():
 
-    def __init__(self, word2vec_path):
+    def __init__(self, Word_2_Vec_path):
         self.__toknizer = RegexpTokenizer(r'''\w'|\w+|[^\w\s]''')
-        self.__Word2_vec_model = word2vec.load(word2vec_path)
+        self.__Word2_vec_model = KeyedVectors.load_word2vec_format(Word_2_Vec_path, binary=True)
         
     def get_rid_of_unwanted_chars(self, corpus):
         return " ".join(re.findall("[\D.]+", " ".join(re.findall("[\w.]+", corpus))))
