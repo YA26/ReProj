@@ -1,0 +1,4 @@
+Word2Vec model is required and is too big for git (>100Mb)
+Get it here: https://drive.google.com/open?id=1ul2Xq3avBE6KgB61pkO65QXDpj8xEF2a
+
+Create a folder "Word2Vec" (if it's not already there) at the root and put the model in it
