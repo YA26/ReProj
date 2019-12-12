@@ -15,9 +15,9 @@ import pickle
 class ModelBuilder:
     
     def __init__(self, Word_2_Vec_path):
-        self.__toknizer = RegexpTokenizer(r'''\w'|\w+|[^\w\s]''')
-        self.__Word2_vec_model = KeyedVectors.load_word2vec_format(Word_2_Vec_path, binary=True)  
-        self.__one_hot_encoder = OneHotEncoder()
+        self.__toknizer         = RegexpTokenizer(r'''\w'|\w+|[^\w\s]''')
+        self.__Word2_vec_model  = KeyedVectors.load_word2vec_format(Word_2_Vec_path, binary=True)  
+        self.__one_hot_encoder  = OneHotEncoder()
               
     def get_word_2_vec_model(self):
         return self.__Word2_vec_model
@@ -198,7 +198,7 @@ class ModelBuilder:
                             score=self.cosine_similarity(word, tf_idf_scores)
                             sentence_score+=score
                         if score>0:
-                            sentences_shrunk.append("{}. ".format(self.shrink_sentence(word, sentence, 3)))          
+                            sentences_shrunk.append("{}. ".format(self.shrink_sentence(word, sentence, 3)))       
                 if sentence_score>0:
                     corpus_+=" ".join(list(dict.fromkeys(sentences_shrunk)))
             if len(corpus_.strip())>0:
@@ -210,28 +210,33 @@ class ModelBuilder:
         '''
         We predict a label for every sentence in a corpus and we average all the predictions
         '''
-        all_predictions=[]
         max_predictions=[]
         for counter, corpus in enumerate(X):
             print("PREDICTIONS FOR CORPUS "+str(counter+1)+" ARE BEING PRODUCED")
-            df_prediction=pd.DataFrame(np.zeros(len(categories)), index=categories, columns=["Predictions"])
-            corpus_length=0
+            df_sentences_prediction=pd.DataFrame(np.zeros(len(categories)), index=categories, columns=["Predictions"])
+            df_corpus_prediction=pd.DataFrame(np.zeros(len(categories)), index=categories, columns=["Predictions"])
+            number_of_sentences=0
+            corpus_vector=0
             for sentence in self.sent_tokenizer(corpus):
                 sentence_vector=0
                 for word in self.__toknizer.tokenize(sentence):
-                    try:   
-                        sentence_vector+=self.__Word2_vec_model.get_vector(word.lower())  
+                    try: 
+                        sentence_vector+=self.__Word2_vec_model.get_vector(word.lower())
                     except KeyError:
                         pass
+                corpus_vector+=sentence_vector
                 if type(sentence_vector)!=int:
-                    corpus_length+=1
-                    prediction_vector=stat_model.predict(sentence_vector.reshape(1,-1)).T    
-                    df_prediction+=pd.DataFrame(prediction_vector*100, index=categories, columns=["Predictions"])
-            if df_prediction is not None:
-                df_prediction/=corpus_length 
-                max_predictions.append([df_prediction.idxmax()[0], df_prediction.max()[0]])
-                all_predictions.append(df_prediction)
-        return np.array(max_predictions), all_predictions
+                    number_of_sentences+=1
+                    prediction_sentence_vector=stat_model.predict(sentence_vector.reshape(1,-1)).T    
+                    df_sentences_prediction+=pd.DataFrame(prediction_sentence_vector*100, index=categories, columns=["Predictions"])
+
+            if df_sentences_prediction is not None:
+                prediction_corpus_vector=stat_model.predict(corpus_vector.reshape(1,-1)).T 
+                df_corpus_prediction=pd.DataFrame(prediction_corpus_vector*100, index=categories, columns=["Predictions"])        
+                df_sentences_prediction/=number_of_sentences
+                df_final_prediction=(df_corpus_prediction+df_sentences_prediction)/2
+                max_predictions.append([df_final_prediction.idxmax()[0], df_final_prediction.max()[0]])
+        return np.array(max_predictions)
     
     def save_variables(self, path, variable):
         '''
