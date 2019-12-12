@@ -95,7 +95,7 @@ report
 #PREDICTION FOR A NEW OBSERVATION
 sentence                    = "Bonjour je vous appelle car j'ai des punaises sur mes draps. Comment m'en débarrasser s'il vous plait?"
 X_new                       = build_model.get_only_meaningful_sentences_without_label(tf_idf_dict, [sentence])
-y_new_obs_predicted, allv   = build_model.predict(X_new, categories_classification_model, categories)    
+y_new_obs_predicted         = build_model.predict(X_new, categories_classification_model, categories)    
 y_new_obs_predicted
 
 
