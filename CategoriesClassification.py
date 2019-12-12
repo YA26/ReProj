@@ -87,7 +87,7 @@ categories_classification_model = load_model("./ML_models/rental_incidents_class
 
 #PREDICTIONS ON TEST SET
 X_test_cleansed, y_test_cleansed                =   build_model.get_meaningful_sentences_only_with_label(tf_idf_dict, X_test, y_test)
-y_predicted, all_predictions                    =   build_model.predict(X_test_cleansed, categories_classification_model, categories)    
+y_predicted                                     =   build_model.predict(X_test_cleansed, categories_classification_model, categories)    
 report                                          =   classification_report(y_true=y_test_cleansed, y_pred=y_predicted[:,0], output_dict=True)
 report                                          =   pd.DataFrame(report).transpose()
 report
