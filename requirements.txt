@@ -1,3 +1,4 @@
+flask
 absl-py==0.8.1
 alabaster==0.7.12
 asn1crypto==1.0.1
@@ -18,12 +19,14 @@ colorama==0.4.1
 cryptography==2.7
 cycler==0.10.0
 cymem==2.0.2
+Cython
 decorator==4.4.0
 defusedxml==0.6.0
 docutils==0.15.2
 entrypoints==0.3
 fr-core-news-sm==2.2.0
 gast==0.2.2
+gensim==3.7.3
 google-pasta==0.1.7
 grpcio==1.24.1
 h5py==2.10.0
@@ -52,9 +55,6 @@ MarkupSafe==1.1.1
 matplotlib==3.1.1
 mccabe==0.6.1
 mistune==0.8.4
-mkl-fft==1.0.14
-mkl-random==1.1.0
-mkl-service==2.3.0
 more-itertools==7.2.0
 murmurhash==1.0.2
 nbconvert==5.6.0
@@ -137,6 +137,5 @@ webencodings==0.5.1
 Werkzeug==0.16.0
 win-inet-pton==1.1.0
 wincertstore==0.2
-word2vec==0.9.4+2.g8204e5c
 wrapt==1.11.2
 zipp==0.6.0

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import word2vec
+from gensim.models import KeyedVectors
 from sklearn.utils import shuffle
 from tensorflow.keras import layers
 from tensorflow.keras.layers import Dropout
@@ -14,9 +14,9 @@ import pickle
 
 class ModelBuilder:
     
-    def __init__(self, word2vec_path):
+    def __init__(self, Word_2_Vec_path):
         self.__toknizer = RegexpTokenizer(r'''\w'|\w+|[^\w\s]''')
-        self.__Word2_vec_model = word2vec.load(word2vec_path)
+        self.__Word2_vec_model = KeyedVectors.load_word2vec_format(Word_2_Vec_path, binary=True)  
         self.__one_hot_encoder = OneHotEncoder()
               
     def get_word_2_vec_model(self):
@@ -42,7 +42,7 @@ class ModelBuilder:
         '''
         Function to implement sentence embedding 
         '''
-        #We use word2Vec embedding, if there is a vector for a given word, we use its vector, otherwise we discard it.
+        #We use Word2Vec embedding, if there is a vector for a given word, we use its vector, otherwise we discard it.
         X_encoded=[] 
         for sentence in X_not_encoded:
             sent_vector=0
