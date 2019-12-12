@@ -46,7 +46,7 @@ class ModelBuilder:
         X_encoded=[] 
         for sentence in X_not_encoded:
             sent_vector=0
-            for word in self.__toknizer.tokenize(sentence):
+            for word in self.__toknizer.tokenize(sentence.lower()):
                 try:
                     sent_vector+=self.__Word2_vec_model.get_vector(word)
                 except KeyError:
@@ -151,7 +151,7 @@ class ModelBuilder:
             corpus_=""
             print("RELEVANT SENTENCES OF CORPUS {} ARE BEING RETRIEVED".format(iterator))
             clean_corpus=self.get_rid_of_unwanted_chars(corpus)
-            for sentence in self.sent_tokenizer(clean_corpus):
+            for sentence in self.sent_tokenizer(clean_corpus.lower()):
                 sentences_shrunk=[]
                 sentence_score=0
                 #We try to see if perhaps a sentence is relevant to any category
@@ -185,7 +185,7 @@ class ModelBuilder:
             corpus_=""
             print("RELEVANT SENTENCES OF CORPUS {} ARE BEING RETRIEVED".format(iterator))
             clean_corpus=self.get_rid_of_unwanted_chars(corpus)
-            for sentence in self.sent_tokenizer(clean_corpus):
+            for sentence in self.sent_tokenizer(clean_corpus.lower()):
                 sentences_shrunk=[]
                 sentence_score=0
                 for word in self.__toknizer.tokenize(sentence):
@@ -216,11 +216,11 @@ class ModelBuilder:
             print("PREDICTIONS FOR CORPUS "+str(counter+1)+" ARE BEING PRODUCED")
             df_prediction=pd.DataFrame(np.zeros(len(categories)), index=categories, columns=["Predictions"])
             corpus_length=0
-            for sentence in self.sent_tokenizer(corpus.lower()):
+            for sentence in self.sent_tokenizer(corpus):
                 sentence_vector=0
                 for word in self.__toknizer.tokenize(sentence):
                     try:   
-                        sentence_vector+=self.__Word2_vec_model.get_vector(word)  
+                        sentence_vector+=self.__Word2_vec_model.get_vector(word.lower())  
                     except KeyError:
                         pass
                 if type(sentence_vector)!=int:
