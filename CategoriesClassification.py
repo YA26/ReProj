@@ -90,7 +90,7 @@ X_test_cleansed, y_test_cleansed                =   build_model.get_meaningful_s
 y_predicted                                     =   build_model.predict(X_test_cleansed, categories_classification_model, categories)    
 report                                          =   classification_report(y_true=y_test_cleansed, y_pred=y_predicted[:,0], output_dict=True)
 report                                          =   pd.DataFrame(report).transpose()
-report
+report.to_csv("./data/report/report.csv")
 
 #PREDICTION FOR A NEW OBSERVATION
 sentence                    = "Bonjour je vous appelle car j'ai des punaises sur mes draps. Comment m'en débarrasser s'il vous plait?"
