@@ -36,6 +36,10 @@ class ModelBuilder:
         return re.split("[?.!]+", re.sub("[?.!]$", "", string))
 
     def get_rid_of_unwanted_chars(self, corpus):
+        '''
+        With this function, we write a regex to remove unwanted punctuations, email adresses and other elements
+        that are useless to our tasks and our model
+        '''
         return " ".join(re.findall("[\D.]+", " ".join(re.findall("[\w.]+", corpus))))
     
     def sentence_to_vector(self, X_not_encoded):
@@ -87,6 +91,11 @@ class ModelBuilder:
         return X_train_encoded, y_train_encoded
        
     def neural_network(self, X, y, path, epoch, batch_size, lr, validation_split):
+        '''
+        This functions implements a neural network with some dropout layers and cross validation to avoid overfitting. 
+        Here we start with an input vector of 500 dimensions. Every dense layer maps the former input to a reduced output to allow
+        every single perceptron to have a better classification of all the inputs(sentences) in our dataset
+        '''
         model = tf.keras.Sequential()
         model.add(layers.Dense(units=X.shape[1] , input_dim=X.shape[1]))
         model.add(Dropout(0.2))
@@ -107,7 +116,9 @@ class ModelBuilder:
       
     def cosine_similarity(self, word, tf_idf_scores):
         '''
-        cosine similarity of every word with a given word in tf_idf[category]
+        This functions helps us determine how valuable a word is to our targets variables.
+        Every word from every single sentence must bring an added value that will make our predictions easier.
+        We then have to compute the cosine similarity of every word with a given word in tf_idf[category] and discard words that are not similar with any words in tf_idf[category]
         '''
         try:
             word_vector=self.__Word2_vec_model.get_vector(word)
@@ -129,6 +140,9 @@ class ModelBuilder:
         return 0
 
     def shrink_sentence(self, context_word, sentence, window):
+        '''
+        shrinks a sentence by keeping words that are in the vicinity(window) of the context_word
+        '''
         sent_index=sentence.index(context_word)
         sentence_1=" ".join(sentence[:sent_index].split()[-window:])
         sentence_2=" ".join(sentence[sent_index+len(context_word):].split()[:window])
@@ -137,12 +151,15 @@ class ModelBuilder:
     
     def get_meaningful_sentences_only_with_label(self, tf_idf_dict, X_test, y_test):
         '''
-        This function has to be applied on a test set
+        This functions helps us clean sentences of words that are irrelevant
+        It has to be applied on a test set
         
-        1- Get sentences that are relevant. If a sentence has the potential to be classified in any of our category, we keep it. 
+        1-We first get sentences that are relevant. If a sentence has the potential to be classified in any of our category, we keep it. 
         So we have to see how relevant its words are for any potential category
         
-        2- Shrink sentences to reduce noise
+        2- We then shrink sentences to reduce noise
+
+        3- We keep the remaining sentence
         '''
         X=[]
         y=[]
@@ -177,7 +194,8 @@ class ModelBuilder:
     
     def get_only_meaningful_sentences_without_label(self, tf_idf_dict, X):
         '''
-        This function has to be used for a new observation
+        This functions helps us clean sentences of words that are irrelevant
+        It has to be used for a new observation
         '''
         X_new=[]
         iterator=1
@@ -208,12 +226,24 @@ class ModelBuilder:
               
     def predict(self, X, stat_model, categories):
         '''
-        We predict a label for every sentence in a corpus and we average all the predictions
+        We predict a label for every sentence in a corpus and we average all the predictions:
+        1- We first compute the average scores of all sentences in the corpus by:
+            a- tokenizing every sentence and making predictions for every single one of them
+            b- averaging all those predictions. We then get a prediction dataframe for all sentences
+
+        2- We then compute scores for the corpus as a whole by giving it to our neural network. We get a 
+        prediction dataframe for the corpus
+
+        3- We average the two dataframes and we get our final predictions(the best of both worlds)
         '''
+
+        # max_predictions_list to store our final predictions
         max_predictions=[]
         for counter, corpus in enumerate(X):
             print("PREDICTIONS FOR CORPUS "+str(counter+1)+" ARE BEING PRODUCED")
+            #df_sentences_prediction to get average prediction in a sentence by sentence way
             df_sentences_prediction=pd.DataFrame(np.zeros(len(categories)), index=categories, columns=["Predictions"])
+            #df_corpus_prediction to get prediction for the whole corpus
             df_corpus_prediction=pd.DataFrame(np.zeros(len(categories)), index=categories, columns=["Predictions"])
             number_of_sentences=0
             corpus_vector=0
@@ -227,32 +257,32 @@ class ModelBuilder:
                 corpus_vector+=sentence_vector
                 if type(sentence_vector)!=int:
                     number_of_sentences+=1
-                    prediction_sentence_vector=stat_model.predict(sentence_vector.reshape(1,-1)).T    
+                    prediction_sentence_vector=stat_model.predict(sentence_vector.reshape(1,-1)).T  
+                    #We average all the predicitions   
                     df_sentences_prediction+=pd.DataFrame(prediction_sentence_vector*100, index=categories, columns=["Predictions"])
 
             if df_sentences_prediction is not None:
                 prediction_corpus_vector=stat_model.predict(corpus_vector.reshape(1,-1)).T 
                 df_corpus_prediction=pd.DataFrame(prediction_corpus_vector*100, index=categories, columns=["Predictions"])        
                 df_sentences_prediction/=number_of_sentences
+                #We get the best of both worlds
                 df_final_prediction=(df_corpus_prediction+df_sentences_prediction)/2
                 max_predictions.append([df_final_prediction.idxmax()[0], df_final_prediction.max()[0]])
         return np.array(max_predictions)
     
     def save_variables(self, path, variable):
         '''
-        Save our relevant variables with pickle
+        Save variables with pickle
         '''
         with open(path, "wb") as file:
             pickle.dump(variable, file)
     
     def load_variables(self, path):
         '''
-        Load our variables with pickle
+        Load variables with pickle
         '''
         loaded_variable=None
         with open(path, "rb") as file:
             loaded_variable=pickle.load(file)
         return loaded_variable
     
-
-
