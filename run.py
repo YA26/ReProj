@@ -10,7 +10,6 @@ from sklearn.metrics import classification_report
 ############# MAIN OBJECTS #################
 ############################################
 """
-
 data_preprocessing  =   DataPreProcessing(Word_2_Vec_path="./Word2Vec/frWac_non_lem_no_postag_no_phrase_500_skip_cut200.bin")
 build_model         =   ModelBuilder(Word_2_Vec_path="./Word2Vec/frWac_non_lem_no_postag_no_phrase_500_skip_cut200.bin") 
 
@@ -28,8 +27,6 @@ data_scraped=pd.read_csv("./data/scraping/scraped_data.csv")
 ######## DATA PREPROCESSING ################
 ############################################
 """
-
-
 original_dataset                                    =   pd.read_csv("./data/train_v2.csv", sep=";", encoding="ISO-8859-1")
 concat_dataset                                      =   pd.concat([original_dataset, data_scraped])
 concat_dataset.dropna(inplace=True)
@@ -96,7 +93,7 @@ report                                          =   pd.DataFrame(report).transpo
 report.to_csv("./data/report/report.csv")
 
 #PREDICTION FOR A NEW OBSERVATION
-sentence                    = "Bonjour je vous appelle car j'ai des punaises sur mes draps. Comment m'en débarrasser s'il vous plait?"
+sentence                    = "j'ai un problème avec mon radiateur"
 X_new                       = build_model.get_meaningful_sentences_only_without_label(tf_idf_dict, [sentence], 5)
 y_new_obs_predicted         = build_model.predict(X_new, categories_classification_model, categories)    
 y_new_obs_predicted
