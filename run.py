@@ -32,6 +32,7 @@ data_scraped=pd.read_csv("./data/scraping/scraped_data.csv")
 
 original_dataset                                    =   pd.read_csv("./data/train_v2.csv", sep=";", encoding="ISO-8859-1")
 concat_dataset                                      =   pd.concat([original_dataset, data_scraped])
+concat_dataset.dropna(inplace=True)
 X_train, X_test, y_train, y_test                    =   data_preprocessing.train_test_separator(content=concat_dataset["content"].values, labels=concat_dataset["label"].values, test_size=0.2)
 contents_by_categories                              =   data_preprocessing.group_contents_by_label(X=X_train, y=y_train)
 contents_by_categories_cleansed_up, unique_words    =   data_preprocessing.clean_up_files(contents_by_categories)
