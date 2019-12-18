@@ -227,7 +227,7 @@ class DataPreProcessing():
         new_sentence = "{} {} {}".format(sentence_1, context_word, sentence_2)
         return new_sentence
 
-    def score_sentences(self, files_by_label_cleansed_up, tf_idf_dict):
+    def score_sentences(self, files_by_label_cleansed_up, tf_idf_dict, window_size):
         '''
         Scores every sentence for a given category.
         If the score exceeds the mean of all scores(for a given category), we keep the sentence in our final training set
@@ -246,7 +246,7 @@ class DataPreProcessing():
                         n_words_per_sentence+=1
                         word_score=tf_idf_dict[label][word]
                         sentence_score+=word_score
-                        shrunk_sent=self.shrink_sentence(word, sentence, 3)
+                        shrunk_sent=self.shrink_sentence(word, sentence, window_size)
                         if shrunk_sent not in sentences_shrunk:
                             sentences_shrunk.append(shrunk_sent)
                 if n_words_per_sentence!=0:

@@ -90,9 +90,9 @@ class ModelBuilder:
         y_train_encoded=X_and_y[:,X_train_encoded.shape[1]:]
         return X_train_encoded, y_train_encoded
        
-    def neural_network(self, X, y, path, epoch, batch_size, lr, validation_split):
+    def neural_network(self, X, y, path, epoch, batch_size, lr):
         '''
-        This functions implements a neural network with some dropout layers and cross validation to avoid overfitting. 
+        This functions implements a neural network with some dropout layers to avoid overfitting. 
         Here we start with an input vector of 500 dimensions. Every dense layer maps the former input to a reduced output to allow
         every single perceptron to have a better classification of all the inputs(sentences) in our dataset
         '''
@@ -108,13 +108,13 @@ class ModelBuilder:
         model.add(layers.Dense(units=50, activation='relu'))
         model.add(Dropout(0.2))
         model.add(layers.Dense(units=y.shape[1], activation='softmax'))
-        model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=[tf.keras.metrics.Precision()], lr=lr, validation_split=validation_split) 
+        model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=[tf.keras.metrics.Precision()], lr=lr) 
         model.fit(X, y, epochs=epoch, batch_size=batch_size)
         model.save(path)
         print("Saved model to "+str(path))
         return model
       
-    def cosine_similarity(self, word, tf_idf_scores):
+    def cosine_similarity(self, word, tf_idf_scores, confidence_threshold):
         '''
         This functions helps us determine how valuable a word is to our targets variables.
         Every word from every single sentence must bring an added value that will make our predictions easier.
@@ -132,8 +132,8 @@ class ModelBuilder:
                 cosines_dict[tf_idf_word]=cos
             td_idf_max_value=np.max(list(cosines_dict.values()))
             tf_idf_word_of_max_value=max(cosines_dict.items(), key=operator.itemgetter(1))[0]  
-            #if cosine is greater than 0.60, we keep the word
-            if td_idf_max_value > 0.60:
+            #if cosine is greater than some confidence_threshold, we keep the word
+            if td_idf_max_value > confidence_threshold:
                 return tf_idf_scores[tf_idf_word_of_max_value]
         except KeyError:
             return 0
@@ -149,7 +149,7 @@ class ModelBuilder:
         new_sentence="{} {} {}".format(sentence_1, context_word, sentence_2)
         return new_sentence
     
-    def get_meaningful_sentences_only_with_label(self, tf_idf_dict, X_test, y_test):
+    def get_meaningful_sentences_only_with_label(self, tf_idf_dict, X_test, y_test, window_size):
         '''
         This functions helps us clean sentences of words that are irrelevant
         It has to be applied on a test set
@@ -161,6 +161,7 @@ class ModelBuilder:
 
         3- We keep the remaining sentence
         '''
+
         X=[]
         y=[]
         iterator=1
@@ -174,16 +175,15 @@ class ModelBuilder:
                 #We try to see if perhaps a sentence is relevant to any category
                 for word in self.__toknizer.tokenize(sentence):
                     #We have to consider every word in order to see how they are related to words in tf_idf[category]
-                    score=0 
+                    word_score=0
                     for label, tf_idf_scores in tf_idf_dict.items():
                         try:
-                            score=tf_idf_scores[word]
-                            sentence_score+=score
+                            word_score+=tf_idf_scores[word]
                         except KeyError:
-                            score=self.cosine_similarity(word, tf_idf_scores)
-                            sentence_score+=score
-                        if score>0:
-                            sentences_shrunk.append("{}. ".format(self.shrink_sentence(word, sentence, 3)))
+                            word_score+=self.cosine_similarity(word, tf_idf_scores, 0.60)
+                    if word_score>0:
+                        sentences_shrunk.append("{}. ".format(self.shrink_sentence(word, sentence, window_size)))  
+                        sentence_score+=word_score                           
                 if sentence_score>0:
                     corpus_+=" ".join(list(dict.fromkeys(sentences_shrunk)))
             if len(corpus_.strip())>0:
@@ -192,7 +192,7 @@ class ModelBuilder:
             iterator+=1
         return np.array(X), np.array(y)
     
-    def get_only_meaningful_sentences_without_label(self, tf_idf_dict, X):
+    def get_meaningful_sentences_only_without_label(self, tf_idf_dict, X, window_size):
         '''
         This functions helps us clean sentences of words that are irrelevant
         It has to be used for a new observation
@@ -207,16 +207,15 @@ class ModelBuilder:
                 sentences_shrunk=[]
                 sentence_score=0
                 for word in self.__toknizer.tokenize(sentence):
-                    score=0 
+                    word_score=0
                     for label, tf_idf_scores in tf_idf_dict.items():
                         try:
-                            score=tf_idf_scores[word]
-                            sentence_score+=score
+                            word_score+=tf_idf_scores[word]
                         except KeyError:
-                            score=self.cosine_similarity(word, tf_idf_scores)
-                            sentence_score+=score
-                        if score>0:
-                            sentences_shrunk.append("{}. ".format(self.shrink_sentence(word, sentence, 3)))       
+                            word_score+=self.cosine_similarity(word, tf_idf_scores, 0.60)
+                    if word_score>0:
+                        sentences_shrunk.append("{}. ".format(self.shrink_sentence(word, sentence, window_size)))  
+                        sentence_score+=word_score                           
                 if sentence_score>0:
                     corpus_+=" ".join(list(dict.fromkeys(sentences_shrunk)))
             if len(corpus_.strip())>0:
@@ -286,3 +285,5 @@ class ModelBuilder:
             loaded_variable=pickle.load(file)
         return loaded_variable
     
+
+
