@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 
-class DataPreProcessing():
+class DataPreProcessing(object):
 
     def __init__(self, Word_2_Vec_path):
         self.__toknizer = RegexpTokenizer(r'''\w'|\w+|[^\w\s]''')
