@@ -12,7 +12,7 @@ import operator
 import re
 import pickle
 
-class ModelBuilder:
+class ModelBuilder(object):
     
     def __init__(self, Word_2_Vec_path):
         self.__toknizer         = RegexpTokenizer(r'''\w'|\w+|[^\w\s]''')
